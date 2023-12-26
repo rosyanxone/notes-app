@@ -1,7 +1,7 @@
 import React from "react";
 import NoteItem from "./NoteItem";
 
-function NoteList({ notes, formattedDate, onDelete, onArchive }) {
+function NoteList({ notes, onDelete, onArchive }) {
   const renderNotes = (filteredNotes) => {
     if (filteredNotes.length === 0) {
       return <p className="notes-list__empty-message">Tidak ada catatan</p>;
@@ -13,7 +13,6 @@ function NoteList({ notes, formattedDate, onDelete, onArchive }) {
           <NoteItem
             key={note.id}
             {...note}
-            formattedDate={formattedDate}
             onDelete={onDelete}
             onArchive={onArchive}
           />
@@ -22,13 +21,13 @@ function NoteList({ notes, formattedDate, onDelete, onArchive }) {
     );
   };
 
-  const notesActive = notes.filter((note) => !note.archived);
+  const notesUnarchive = notes.filter((note) => !note.archived);
   const notesArchived = notes.filter((note) => note.archived);
 
   return (
     <>
       <h2>Catatan Aktif</h2>
-      {renderNotes(notesActive)}
+      {renderNotes(notesUnarchive)}
       <h2>Arsip</h2>
       {renderNotes(notesArchived)}
     </>

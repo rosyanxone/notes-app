@@ -1,5 +1,6 @@
 import React from "react";
-import { getInitialData, showFormattedDate } from "../utils";
+import autoBind from "react-autobind";
+import { getInitialData } from "../utils";
 import NoteAppHeader from "./NoteAppHeader";
 import NoteAppBody from "./NoteAppBody";
 
@@ -9,47 +10,44 @@ class NoteApp extends React.Component {
 
     this.state = {
       notes: getInitialData(),
-      notesOrigin: getInitialData(),
+      noteDatas: getInitialData(),
+      search: "",
     };
 
-    this.formattedDate = showFormattedDate.bind(this);
-    this.onDeleteHandler = this.onDeleteHandler.bind(this);
-    this.onArchiveHandler = this.onArchiveHandler.bind(this);
-    this.onAddNoteHandler = this.onAddNoteHandler.bind(this);
-    this.onSearchNoteHandler = this.onSearchNoteHandler.bind(this);
+    autoBind(this);
   }
 
   onDeleteHandler(id) {
-    const { notes, notesOrigin } = this.state;
+    const { notes, noteDatas } = this.state;
 
     const updatedNotes = notes.filter((note) => note.id !== id);
-    const updatedNotesOrigin = notesOrigin.filter((note) => note.id !== id);
+    const updatedNoteDatas = noteDatas.filter((note) => note.id !== id);
 
     this.setState({
       notes: updatedNotes,
-      notesOrigin: updatedNotesOrigin,
+      noteDatas: updatedNoteDatas,
     });
   }
 
   onArchiveHandler(id) {
-    const { notes, notesOrigin } = this.state;
+    const { notes, noteDatas } = this.state;
 
     const updatedNotes = notes.map((note) =>
       note.id === id ? { ...note, archived: !note.archived } : note
     );
-    const updatedNotesOrigin = notesOrigin.map((note) =>
+    const updatedNoteDatas = noteDatas.map((note) =>
       note.id === id ? { ...note, archived: !note.archived } : note
     );
 
     this.setState({
       notes: updatedNotes,
-      notesOrigin: updatedNotesOrigin,
+      noteDatas: updatedNoteDatas,
     });
   }
 
   onAddNoteHandler({ title, body }) {
     const newNote = {
-      id: this.state.notesOrigin.length + 1,
+      id: this.state.noteDatas.length + 1,
       title,
       body,
       createdAt: new Date().toISOString(),
@@ -59,30 +57,35 @@ class NoteApp extends React.Component {
     this.setState((prevState) => {
       return {
         notes: [...prevState.notes, newNote],
-        notesOrigin: [...prevState.notesOrigin, newNote],
+        noteDatas: [...prevState.noteDatas, newNote],
       };
     });
   }
 
-  onSearchNoteHandler(searchInput) {
-    const filteredNotes = this.state.notesOrigin.filter((note) =>
-      note.title.toLowerCase().includes(searchInput.toLowerCase())
+  onSearchChangeEventHandler(event) {
+    this.setState({
+      search: event.target.value,
+    });
+  }
+
+  onChangeNoteHandler() {
+    const filteredNotes = this.state.noteDatas.filter((note) =>
+      note.title.toLowerCase().includes(this.state.search.toLowerCase())
     );
 
-    this.setState({
-      notes: filteredNotes,
-    });
+    return filteredNotes;
   }
 
   render() {
     return (
       <>
-        <NoteAppHeader searchNote={this.onSearchNoteHandler} />
+        <NoteAppHeader
+          onSearch={this.onSearchChangeEventHandler}
+          inputSearch={this.state.search}
+        />
         <NoteAppBody
           addNote={this.onAddNoteHandler}
-          searchNote={this.onSearchNoteHandler}
-          notes={this.state.notes}
-          formattedDate={this.formattedDate}
+          notes={this.onChangeNoteHandler()}
           onDelete={this.onDeleteHandler}
           onArchive={this.onArchiveHandler}
         />
