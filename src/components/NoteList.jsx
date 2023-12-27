@@ -1,37 +1,32 @@
-import React from "react";
+import React, { useContext } from "react";
+import PropTypes from "prop-types";
 import NoteItem from "./NoteItem";
+import LocaleContext from "../contexts/LocaleContext";
 
-function NoteList({ notes, onDelete, onArchive }) {
-  const renderNotes = (filteredNotes) => {
-    if (filteredNotes.length === 0) {
-      return <p className="notes-list__empty-message">Tidak ada catatan</p>;
-    }
+function NoteList({ notes }) {
+  const { locale } = useContext(LocaleContext);
 
+  if (!notes.length) {
     return (
-      <div className="notes-list">
-        {filteredNotes.map((note) => (
-          <NoteItem
-            key={note.id}
-            {...note}
-            onDelete={onDelete}
-            onArchive={onArchive}
-          />
-        ))}
-      </div>
+      <section className="notes-list-empty">
+        <p className="notes-list__empty">
+          {locale === "id" ? "Tidak ada catatan" : "No notes"}
+        </p>
+      </section>
     );
-  };
-
-  const notesUnarchive = notes.filter((note) => !note.archived);
-  const notesArchived = notes.filter((note) => note.archived);
+  }
 
   return (
-    <>
-      <h2>Catatan Aktif</h2>
-      {renderNotes(notesUnarchive)}
-      <h2>Arsip</h2>
-      {renderNotes(notesArchived)}
-    </>
+    <section className="notes-list">
+      {notes.map((note) => (
+        <NoteItem key={note.id} {...note} />
+      ))}
+    </section>
   );
 }
+
+NoteList.propTypes = {
+  notes: PropTypes.arrayOf(PropTypes.object).isRequired,
+};
 
 export default NoteList;

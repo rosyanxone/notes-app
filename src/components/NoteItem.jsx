@@ -1,30 +1,28 @@
 import React from "react";
-import DeleteButton from "./DeleteButton";
-import ArchiveButton from "./ArchiveButton";
-import { showFormattedDate } from "./../utils/index.js";
+import PropTypes from "prop-types";
+import parser from "html-react-parser";
+import { Link } from "react-router-dom";
+import { showFormattedDate } from "../utils";
 
-function NoteItem({
-  id,
-  title,
-  body,
-  createdAt,
-  archived,
-  onDelete,
-  onArchive,
-}) {
+function NoteItem({ id, title, createdAt, body }) {
+  const createdAtFormatted = showFormattedDate(createdAt);
+
   return (
-    <div className="note-item">
-      <div className="note-item__content">
-        <h3 className="note-item__title">{title}</h3>
-        <p className="note-item__date">{showFormattedDate(createdAt)}</p>
-        <p className="note-item__body">{body}</p>
-      </div>
-      <div className="note-item__action">
-        <DeleteButton id={id} onDelete={onDelete} />
-        <ArchiveButton id={id} archived={archived} onArchive={onArchive} />
-      </div>
-    </div>
+    <article className="note-item">
+      <h3 className="note-item__title">
+        <Link to={`/notes/${id}`}>{title}</Link>
+      </h3>
+      <p className="note-item__createdAt">{createdAtFormatted}</p>
+      <div className="note-item__body">{parser(body)}</div>
+    </article>
   );
 }
+
+NoteItem.propTypes = {
+  id: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  createdAt: PropTypes.string.isRequired,
+  body: PropTypes.string.isRequired,
+};
 
 export default NoteItem;
